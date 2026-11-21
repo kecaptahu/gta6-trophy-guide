@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Leonida Ledger — GTA VI Trophy Guide</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="eyebrow">THE UNOFFICIAL PLATINUM FIELD GUIDE</div>
+    <h1>LEONIDA <span>LEDGER</span></h1>
+    <p>Every PS5 trophy. Every missable. One clean route to platinum.</p>
+    <div class="progress-summary"><strong id="progress">0 / 55 earned</strong><div id="grade-progress" class="grade-progress" aria-label="Progress by trophy grade"></div></div>
+  </header>
+  <nav class="tab-nav" aria-label="Guide views" role="tablist">
+    <button class="tab-active" data-tab="checklist" role="tab" aria-selected="true">55 Trophy Checklist</button>
+    <button data-tab="roadmap" role="tab" aria-selected="false">Platinum Roadmap</button>
+    <button data-tab="missables" role="tab" aria-selected="false">Missables</button>
+  </nav>
+  <section id="filter-panel" class="controls" aria-label="Tracker controls">
+    <label class="search-field">Find a trophy<input type="search" id="search" placeholder="Name, description, or guide…" autocomplete="off"></label>
+    <label>Grade<select id="grade"><option value="all">All grades</option><option value="platinum">Platinum</option><option value="gold">Gold</option><option value="silver">Silver</option><option value="bronze">Bronze</option></select></label>
+    <label>Kind<select id="kind"><option value="all">All kinds</option><option value="story">Story</option><option value="activity">Activities</option><option value="collectible">Collectibles</option><option value="online">Online</option></select></label>
+    <label>Missable<select id="missable"><option value="all">Show all</option><option value="yes">Missable only</option><option value="no">Not missable</option></select></label>
+    <label class="toggle-field"><input type="checkbox" id="spoilers" checked> Hide story spoilers</label>
+    <div class="io-controls"><button id="export" type="button">Export progress</button><label class="import-button">Import JSON <input type="file" id="import" accept="application/json,.json"></label></div>
+    <div id="import-status" class="import-status" role="status" aria-live="polite"></div>
+  </section>
+  <main class="trophy-area"><div class="trophy-grid" id="trophy-grid" aria-live="polite"></div></main>
+  <footer>Unofficial fan-made tracker · No game artwork or Rockstar logos · Progress stays in this browser.</footer>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
