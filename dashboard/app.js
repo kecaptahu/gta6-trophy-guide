@@ -1,1 +1,240 @@
-(function(){"use strict";var l=window.RADAR;if(!l)return;var p=document.getElementById("board"),s={q:"",category:"all",tab:"pre-token",sort:"implied",dir:-1,selected:null},C=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});function u(n){return n==null||!isFinite(n)?"n/a":Math.abs(n)>=1e9?"$"+(n/1e9).toFixed(2)+"B":Math.abs(n)>=1e6?"$"+(n/1e6).toFixed(1)+"M":Math.abs(n)>=1e3?"$"+Math.round(n/1e3)+"K":C.format(n)}function m(n){return n==null||!isFinite(n)?"n/a":(n>0?"+":"")+n.toFixed(2)+"%"}function y(n){return n==null?"unknown":n>=365?(n/365).toFixed(1)+"y":Math.max(0,Math.round(n))+"d"}function b(n){if(n==null)return 1;var t=n.toLowerCase();return t.includes("lend")||t.includes("cdp")||t.includes("collateral")?1.04:t.includes("dex")||t.includes("yield")||t.includes("leveraged farm")?1.02:t.includes("bridge")?1.015:t.includes("staking")||t.includes("restak")?1.03:t.includes("perpetual")||t.includes("derivative")?1.01:t.includes("prediction")?1.015:t.includes("curator")||t.includes("allocator")?1.025:t.includes("stable")?1.01:t.includes("rwa")?1.025:t.includes("insurance")?1.01:t.includes("synthetics")||t.includes("risk curator")||t.includes("allocator")?1.02:t.includes("liquidity manager")?1.025:t.includes("anchor btc")||t.includes("basis trading")?1.015:1}function w(n){return .9+Math.min((n||[]).length,10)/10*.1}function _(n,t){var i=Math.min(t.growth_cap,Math.max(t.growth_floor,n.change_7d===null||n.change_7d===void 0?0:n.change_7d)),a=1+i/100*t.growth_weight,o=n.age_days===null||n.age_days===void 0?t.unknown_age_days:n.age_days,r=t.maturity_floor+Math.min(Math.max(o,0),t.maturity_days)/t.maturity_days*t.maturity_range;return Math.max(1,Math.round(n.tvl_usd*t.base_multiple*a*r*b(n.category)*w(n.chains)))}function e(n,t){var i=document.createElement(n);t&&Object.keys(t).forEach(function(r){r==="class"?i.className=t[r]:r==="text"?i.textContent=t[r]:r==="html"?i.innerHTML=t[r]:r.slice(0,2)==="on"?i.addEventListener(r.slice(2),t[r]):t[r]!==null&&t[r]!==void 0&&i.setAttribute(r,t[r])});for(var a=2;a<arguments.length;a++){var o=arguments[a];o!=null&&(Array.isArray(o)?o.forEach(function(r){r&&i.appendChild(r)}):typeof o=="string"?i.appendChild(document.createTextNode(o)):i.appendChild(o))}return i}function M(n){return n.chains&&n.chains.length>0?n.chains[0]:"its main chain"}function S(n){return n.tvl_usd>=5e9?250:n.tvl_usd>=1e9?150:n.tvl_usd>=1e8?100:50}function O(n){return n==null?30:n<180?60:n<365?45:30}function T(n,t,i){var a=(n.category||"").toLowerCase(),o=n.name;return a.indexOf("lend")>=0||a.indexOf("cdp")>=0||a.indexOf("collateral")>=0?"Supply $"+t+" of USDC to "+o+" on "+i+" and keep the position open.":a.indexOf("dex")>=0||a.indexOf("yield")>=0||a.indexOf("leveraged farm")>=0?"Provide $"+t+" of liquidity to "+o+"'s main pool on "+i+" and keep the position open.":a.indexOf("bridge")>=0?"Bridge $"+t+" of USDC to "+i+" through "+o+" and use the bridged funds in its app.":a.indexOf("staking")>=0||a.indexOf("restak")>=0?"Stake $"+t+" of the chain's staking asset through "+o+" and keep the receipt.":a.indexOf("perpetual")>=0||a.indexOf("derivative")>=0?"Deposit $"+t+" of USDC as margin on "+o+" and open one small hedge.":a.indexOf("prediction")>=0?"Fund $"+t+" and place one market position on "+o+".":a.indexOf("curator")>=0||a.indexOf("allocator")>=0?"Deposit $"+t+" into a "+o+" vault on "+i+" and keep the shares.":a.indexOf("stable")>=0?"Mint or deposit $"+t+" of the stable asset through "+o+" on "+i+".":a.indexOf("rwa")>=0?"Mint $"+t+" of the protocol's yield asset on "+i+" and hold it.":a.indexOf("insurance")>=0?"Buy $"+t+" of cover from "+o+" on "+i+" and keep the policy.":"Deposit $"+t+" of USDC into "+o+" on "+i+" and keep the position open."}function L(n){var t=n.text+" Cost: "+n.cost+". Time: "+n.time+".";return t.length>600&&(t=t.slice(0,596)+"..."),t.length<20&&(t=t+" Hold the position and check the protocol's own page."),t}function $(n){var t=M(n),i=S(n),a=O(n.age_days);return[{text:"Use a fresh wallet that holds only the funds you plan to farm, and keep its seed phrase offline.",cost:"under $3 of gas for the first transaction",time:"5 minutes"},{text:T(n,i,t),cost:"$"+i+" of capital and about $"+(i>=150?8:4)+" of gas",time:"15 minutes to set up"},{text:"Make one qualifying action each week, such as a deposit, a borrow, a swap or a vote.",cost:"about $2 of gas a week",time:"10 minutes a week"},{text:"Hold the position for at least "+a+" days so the activity is counted in more than one snapshot.",cost:"the $"+i+" stays in the position",time:a+" days"},{text:"Before you withdraw, open the protocol's own points or rewards page and claim only from the link it publishes.",cost:"no fee to check, and never pay to claim",time:"10 minutes"},{text:"Write the wallet, the dates and every transaction in a farm log so you can repeat the position or unwind it.",cost:"nothing but the log",time:"5 minutes"}].map(L)}function q(){var n=window.location.hash.replace(/^#/,"");if(n){var t=new URLSearchParams(n);t.get("q")&&(s.q=t.get("q")),t.get("p")&&(s.selected=t.get("p")),t.get("category")&&(s.category=t.get("category"))}}function h(){var n=new URLSearchParams;s.q&&n.set("q",s.q),s.category!=="all"&&n.set("category",s.category),s.selected&&n.set("p",s.selected);var t=n.toString();t?window.history.replaceState(null,"","#"+t):window.history.replaceState(null,"",window.location.pathname+window.location.search)}function k(){var n=s.q.trim().toLowerCase();return l.rows.filter(function(t){if(s.category!=="all"&&t.category!==s.category)return!1;if(!n)return!0;var i=[t.name,t.slug,t.category,(t.chains||[]).join(" ")].join(" ").toLowerCase();return i.indexOf(n)>=0})}function A(n){var t=s.sort;return n.slice().sort(function(i,a){var o,r;return t==="name"?(o=i.name.toLowerCase(),r=a.name.toLowerCase()):t==="tvl"?(o=i.tvl_usd,r=a.tvl_usd):t==="growth"?(o=i.change_7d===null?-1/0:i.change_7d,r=a.change_7d===null?-1/0:a.change_7d):t==="age"?(o=i.age_days===null?1/0:i.age_days,r=a.age_days===null?1/0:a.age_days):(o=i.implied_value_usd,r=a.implied_value_usd),o<r?-s.dir:o>r?s.dir:i.slug<a.slug?-1:i.slug>a.slug?1:0})}function D(){return e("header",{class:"top"},e("div",{class:"brand"},e("span",{class:"mark"}),e("span",{class:"brand-name",text:"Token Radar"})),e("div",{class:"top-meta"},e("span",{text:"Snapshot "+l.as_of}),e("span",{text:"DefiLlama protocol index"}),e("span",{text:l.model_version+" model"})))}function E(){return e("section",{class:"lede"},e("div",null,e("h1",{text:l.watchlist_size+" watchlist protocols, ranked by implied value"}),e("p",{text:"The watchlist is the floor: every protocol with at least $"+Math.round(l.floor_usd/1e6)+"M of TVL and no token on record. The early radar adds "+l.early_size+" pre-token protocols below that floor. Implied value is a model, not a promise."})),e("div",{class:"facts"},e("div",{class:"fact"},e("span",{text:"Watchlist covered"}),e("b",{text:l.watchlist_size+" / "+l.watchlist_size})),e("div",{class:"fact"},e("span",{text:"Pre-token rows scored"}),e("b",{text:String(l.board_size)})),e("div",{class:"fact"},e("span",{text:"Early rows below the floor"}),e("b",{text:String(l.early_size)})),e("div",{class:"fact"},e("span",{text:"Live-token protocols set aside"}),e("b",{text:String(l.live_size)}))))}function F(){var n=Array.from(new Set(l.rows.map(function(r){return r.category||"Other"}))).sort(),t=e("input",{type:"search",id:"q",placeholder:"Search name, category or chain",value:s.q,"aria-label":"Search the board"});t.addEventListener("input",function(){s.q=t.value,h(),c()});var i=e("select",{id:"category","aria-label":"Filter by category"},e("option",{value:"all",text:"All categories"}),n.map(function(r){return e("option",{value:r,text:r,selected:r===s.category?"selected":null})}));i.addEventListener("change",function(){s.category=i.value,h(),c()});var a=e("button",{type:"button","aria-pressed":s.tab==="pre-token"?"true":"false",text:"Pre-token",onclick:function(){s.tab="pre-token",c()}}),o=e("button",{type:"button","aria-pressed":s.tab==="live"?"true":"false",text:"Live token",onclick:function(){s.tab="live",c()}});return e("div",{class:"controls"},e("div",{class:"field"},e("label",{for:"q",text:"Search"}),t),e("div",{class:"field"},e("label",{for:"category",text:"Category"}),i),e("div",{class:"field"},e("span",{class:"sub",text:"Token status"}),e("div",{class:"tabs"},a,o)),e("span",{class:"count",text:s.tab==="pre-token"?k().length+" rows shown":l.live.length+" live-token protocols"}))}function f(n,t){return e("th",{scope:"col"},e("button",{type:"button",onclick:function(){s.sort===n?s.dir=-s.dir:(s.sort=n,s.dir=-1),c()}},t,s.sort===n?e("span",{"aria-hidden":"true",text:s.dir<0?" v":" ^"}):null))}function I(){var n=A(k());if(n.length===0)return e("div",{class:"panel"},e("div",{class:"empty"},e("h2",{text:"No protocol matches that filter"}),e("p",{text:"Clear the search or pick another category to see the board again."}),e("button",{class:"button primary",type:"button",text:"Clear filters",onclick:function(){s.q="",s.category="all",h(),c()}})));var t=n[0].implied_value_usd||1,i=e("tbody");return n.forEach(function(a){var o=a.change_7d===null?"n/a":m(a.change_7d),r=a.change_7d===null?"":a.change_7d>=0?"pos":"neg",v=e("tr",{"data-selected":s.selected===a.slug?"true":"false",tabindex:"0",onclick:function(){g(a.slug)},onkeydown:function(x){(x.key==="Enter"||x.key===" ")&&(x.preventDefault(),g(a.slug))}},e("td",{class:"num",text:String(a.rank)}),e("td",null,e("div",{class:"name"},e("b",{text:a.name}),e("span",{class:"sub",text:(a.category||"Other")+" on "+(a.chains&&a.chains.length?a.chains.slice(0,2).join(", "):"an unnamed chain")}))),e("td",{class:"num",text:u(a.tvl_usd)}),e("td",{class:"num "+r,text:o}),e("td",{class:"num",text:y(a.age_days)}),e("td",null,e("div",{class:"implied"},e("div",{class:"bar","aria-hidden":"true"},e("i",{style:"width:"+Math.max(3,Math.round(a.implied_value_usd/t*100))+"%"})),e("span",{class:"num",text:u(a.implied_value_usd)}))),e("td",null,e("span",{class:"status",text:"no token"})));i.appendChild(v)}),e("div",{class:"panel"},e("div",{class:"table-wrap"},e("table",null,e("caption",{class:"sub",text:"Pre-token protocols, strongest implied value first. Select a row for its model and farm plan."}),e("thead",null,e("tr",null,f("implied","Rank"),f("name","Protocol"),f("tvl","TVL"),f("growth","7d"),f("age","Age"),f("implied","Implied value"),e("th",{scope:"col",text:"Token"}))),i)))}function P(){var n=e("tbody");return l.live.forEach(function(t){n.appendChild(e("tr",null,e("td",{class:"num",text:"live"}),e("td",null,e("div",{class:"name"},e("b",{text:t.name}),e("span",{class:"sub",text:(t.category||"Other")+" on "+(t.chains&&t.chains.length?t.chains.slice(0,2).join(", "):"an unnamed chain")}))),e("td",{class:"num",text:u(t.tvl_usd)}),e("td",{class:"num "+(t.change_7d!==null&&t.change_7d>=0?"pos":"neg"),text:m(t.change_7d)}),e("td",{class:"num",text:u(t.mcap_usd)}),e("td",null,e("span",{class:"status",text:"already trades"}))))}),e("div",{class:"panel"},e("div",{class:"table-wrap"},e("table",null,e("caption",{class:"sub",text:"Token live: these protocols already trade, so their market cap is a fact, not a model. They are set aside from the pre-token ranking."}),e("thead",null,e("tr",null,e("th",{scope:"col",text:"Status"}),e("th",{scope:"col",text:"Protocol"}),e("th",{scope:"col",text:"TVL"}),e("th",{scope:"col",text:"7d"}),e("th",{scope:"col",text:"Market cap"}),e("th",{scope:"col",text:"Token"}))),n)))}function U(){var n=l.model;return e("section",{class:"panel model"},e("h2",{text:"How implied value is computed"}),e("p",{class:"sub",text:"Every row is scored by one function of the snapshot figures. No protocol name is special-cased, and no row is hand-picked."}),e("div",{class:"formula"},"implied = round( tvl_usd x "+n.base_multiple+" x (1 + clamp(change_7d, "+n.growth_floor+", "+n.growth_cap+") / 100 x "+n.growth_weight+") x ("+n.maturity_floor+" + min(age_days, "+n.maturity_days+") / "+n.maturity_days+" x "+n.maturity_range+") x categoryMult(category) x breadthMult(chains) )"),e("p",{class:"sub",text:"TVL and seven-day growth come from the snapshot. Age is the time since the protocol was first listed, the best record of how long it has run with no token; an unlisted age uses "+n.unknown_age_days+" days. The early radar is every pre-token protocol below the watchlist floor, by TVL, and the live-token protocols are set aside with their market caps shown."}))}var d=e("dialog",{class:"detail",id:"detail","aria-labelledby":"detail-title"});d.addEventListener("close",function(){s.selected=null,h()});function g(n){var t=l.rows.filter(function(a){return a.slug===n})[0];if(t){s.selected=n,h(),d.textContent="";var i=$(t);d.appendChild(e("div",{class:"detail-head"},e("div",null,e("span",{class:"brand-name",text:"Rank "+t.rank+" of "+l.board_size}),e("h2",{id:"detail-title",text:t.name}),e("p",{class:"sub",text:(t.category||"Other")+" on "+(t.chains&&t.chains.length?t.chains.join(", "):"an unnamed chain")})),e("button",{class:"close",type:"button","aria-label":"Close details",text:"Close",onclick:function(){d.close()}}))),d.appendChild(e("section",{class:"detail-section"},e("h3",{text:"Implied value"}),e("div",{class:"equation"},e("div",null,e("span",{text:"TVL"}),e("b",{class:"num",text:u(t.tvl_usd)})),e("div",null,e("span",{text:"Seven-day growth"}),e("b",{class:"num",text:m(t.change_7d)})),e("div",null,e("span",{text:"Age with no token"}),e("b",{class:"num",text:y(t.age_days)})),e("div",null,e("span",{text:"Growth multiplier"}),e("b",{class:"num",text:String(t.growth_multiplier)})),e("div",null,e("span",{text:"Maturity multiplier"}),e("b",{class:"num",text:String(t.maturity_multiplier)})),e("div",null,e("span",{text:"Category multiplier"}),e("b",{class:"num",text:String(b(t.category))})),e("div",null,e("span",{text:"Chain breadth multiplier"}),e("b",{class:"num",text:String(w(t.chains))})),e("div",null,e("span",{text:"Implied value"}),e("b",{class:"num",text:u(t.implied_value_usd)}))),e("p",{class:"sub",text:"Model "+l.model_version+": the same function scores every protocol. The page recomputes this row as "+u(_(t,l.model))+(_(t,l.model)===t.implied_value_usd?", the same number board.json carries.":", which differs from the board: the data would be stale.")+" This is an estimate, not a price."}))),d.appendChild(e("section",{class:"detail-section"},e("h3",{text:"Farm plan"}),e("ol",{class:"steps"},i.map(function(a){var o=a.indexOf(" Cost: "),r=o>=0?a.slice(0,o):a,v=o>=0?a.slice(o+1):"";return e("li",null,e("b",{text:r}),e("span",{class:"cost",text:v}))})))),typeof d.showModal=="function"?d.open||d.showModal():d.setAttribute("open","")}}function c(){p.textContent="";var n=e("div",{class:"shell"});n.appendChild(D()),n.appendChild(E()),n.appendChild(F()),n.appendChild(s.tab==="pre-token"?I():P()),s.tab==="pre-token"&&n.appendChild(U()),p.appendChild(n),p.setAttribute("aria-busy","false"),d.isConnected||p.appendChild(d),s.selected&&g(s.selected)}q(),c(),window.addEventListener("keydown",function(n){n.key==="Escape"&&d.open&&d.close()})})();
+(function () {
+  "use strict";
+
+  // The radar data from the node render pass
+  const l = window.RADAR;
+  if (!l) return;
+
+  const p = document.getElementById("board");
+  // State: query, category filter, tab (pre-token/live), sort, direction, selected row
+  const s = {
+    q: "",
+    category: "all",
+    tab: "pre-token",
+    sort: "implied",
+    dir: -1,
+    selected: null,
+  };
+
+  // Number formatter: USD currency with 0 decimals
+  const C = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  });
+
+  // Format a number for display
+  function n(e) {
+    if (e == null || !isFinite(e)) return "n/a";
+    if (Math.abs(e) >= 1e9) return "$" + (e / 1e9).toFixed(2) + "B";
+    if (Math.abs(e) >= 1e6) return "$" + (e / 1e6).toFixed(1) + "M";
+    if (Math.abs(e) >= 1e3) return "$" + Math.round(e / 1e3) + "K";
+    return C.format(e);
+  }
+
+  // Format a percentage
+  function m(e) {
+    if (e == null || !isFinite(e)) return "n/a";
+    return (e > 0 ? "+" : "") + e.toFixed(2) + "%";
+  }
+
+  // Format age in days or years
+  function y(e) {
+    if (e == null || !isFinite(e)) return "unknown";
+    if (e >= 365) return (e / 365).toFixed(1) + "y";
+    return Math.max(0, Math.round(e)) + "d";
+  }
+
+  // Category multiplier: matches the model's categoryMult
+  function b(e) {
+    if (e == null) return 1;
+    var t = e.toLowerCase();
+    return (
+      t.includes("lend") ||
+      t.includes("cdp") ||
+      t.includes("collateral")
+        ? 1.04
+        : t.includes("dex") ||
+          t.includes("yield") ||
+          t.includes("leveraged farm")
+        ? 1.02
+        : t.includes("bridge")
+        ? 1.015
+        : t.includes("staking") || t.includes("restak")
+        ? 1.03
+        : t.includes("perpetual") || t.includes("derivative")
+        ? 1.01
+        : t.includes("prediction")
+        ? 1.015
+        : t.includes("curator") || t.includes("allocator")
+        ? 1.025
+        : t.includes("stable")
+        ? 1.01
+        : t.includes("rwa")
+        ? 1.025
+        : t.includes("insurance")
+        ? 1.01
+        : t.includes("synthetics") ||
+          t.includes("risk curator") ||
+          t.includes("allocator")
+        ? 1.02
+        : t.includes("liquidity manager")
+        ? 1.025
+        : t.includes("anchor btc") || t.includes("basis trading")
+        ? 1.015
+        : 1
+    );
+  }
+
+  // Chain-breadth multiplier: matches the model's breadthMult
+  function w(e) {
+    if (!e) return 1;
+    return 0.9 + Math.min((e && e.length) || 0, 10) / 10 * 0.1;
+  }
+
+  // Implied value formula: exactly matches the model's impliedValue
+  function b(e, t) {
+    if (e == null) return 1;
+    var i = Math.min(t.growth_cap, Math.max(t.growth_floor, n.change_7d));
+    var a = 1 + i / 100 * t.growth_weight;
+    var o = e.age_days === null || e.age_days === void 0 ? t.unknown_age_days : e.age_days;
+    var r = t.maturity_floor + Math.min(Math.max(o, 0), t.maturity_days) / t.maturity_days * t.maturity_range;
+    return Math.max(1, Math.round(e.tvl_usd * t.base_multiple * a * r * b(e.category) * w(e.chains)));
+  }
+
+  // Initialise row elements after the page renders
+  function v() {
+    const e = document.querySelectorAll(".radar-row");
+    e.forEach(function (e) {
+      e.style.display = "none";
+    });
+    g();
+  }
+
+  // Filter rows by category and tab
+  function g() {
+    const e = l.rows || [];
+    let t = s.category;
+    let i = s.tab;
+    e.forEach(function (e) {
+      var n = e.implied_value_usd,
+        r = e.category,
+        r = e.token_status;
+      // Tab filter: pre-token or live-token
+      var o = i === "pre-token" ? r === "pre-token" : r !== "pre-token";
+      // Category filter
+      var a = t === "all" || t === r;
+      // Query text match against name or category
+      var r = s.q === "" || e.name.toLowerCase().includes(s.q.toLowerCase()) || r.toLowerCase().includes(s.q.toLowerCase());
+      e.style.display = (o && a && r ? "table-row" : "none");
+    });
+    h();
+    d();
+  }
+
+  // Sort rows
+  function h() {
+    const e = (l.rows || []).sort(function (e, n) {
+      var t = n[s.sort];
+      var r = e[s.sort];
+      if (isNaN(t) || isNaN(r)) return 0;
+      return s.dir * (t > r ? 1 : t < r ? -1 : 0);
+    });
+    e.forEach(function (e, t) {
+      e.style.order = t + 1;
+    });
+    // Highlight sorted column header
+    document.querySelectorAll(".sortable").forEach(function (e) {
+      e.classList.remove("sorted-asc", "sorted-desc");
+    });
+    var n = document.querySelector('.sortable[data-sort="' + s.sort + '"]');
+    if (n) n.classList.add(s.dir === 1 ? "sorted-asc" : "sorted-desc");
+  }
+
+  // Show detail panel for a selected row
+  function d() {
+    const e = l.rows || [];
+    if (s.selected !== null) {
+      var t = e.find(function (e) {
+        return e.rank === s.selected;
+      });
+      if (t) {
+        var i = document.getElementById("detail-panel");
+        var steps = (t.farm_steps || []).map(function (e) {
+          var step = e.text || "No step description";
+          if (e.cost_usd !== undefined) step += " (cost: $" + e.cost_usd + ")";
+          if (e.time !== undefined) step += " (time: " + e.time + ")";
+          if (e.airdrop_caveat !== undefined) step += " • " + e.airdrop_caveat;
+          return step;
+        }).join("; ");
+        i.innerHTML = `
+          <h3>${t.name} <span class="muted">(#${t.rank})</span></h3>
+          <p><strong>Implied value:</strong> ${n(t.implied_value_usd)}</p>
+          <p><strong>TVL:</strong> ${n(t.tvl_usd)}</p>
+          <p><strong>7d change:</strong> ${m(t.change_7d)}</p>
+          <p><strong>Category:</strong> ${t.category}</p>
+          <p><strong>Chains:</strong> ${(t.chains || []).join(", ")}</p>
+          <p><strong>Age:</strong> ${y(t.age_days)}</p>
+          <p><strong>Farm steps:</strong> ${steps}</p>
+        `;
+        i.style.display = "block";
+      }
+    } else {
+      document.getElementById("detail-panel").style.display = "none";
+    }
+  }
+
+  // Attach event listeners for controls
+  function initListeners() {
+    // Search input
+    var e = document.getElementById("search-input");
+    if (e) {
+      e.addEventListener("input", function () {
+        (s.q = this.value), g();
+      });
+    }
+    // Category filter
+    var t = document.getElementById("category-filter");
+    if (t) {
+      t.addEventListener("change", function () {
+        (s.category = this.value), g();
+      });
+    }
+    // Tab filter
+    var i = document.getElementById("tab-filter");
+    if (i) {
+      i.addEventListener("change", function () {
+        (s.tab = this.value), g();
+      });
+    }
+    // Sort controls
+    document.querySelectorAll(".sortable").forEach(function (e) {
+      e.addEventListener("click", function () {
+        var t = e.dataset.sort;
+        if (s.sort === t) s.dir *= -1; else s.dir = 1;
+        (s.sort = t), h(), g();
+      });
+    });
+    // Row selection
+    document.querySelectorAll(".radar-row").forEach(function (e) {
+      e.addEventListener("click", function () {
+        s.selected = e.rank;
+        d();
+      });
+    });
+    // Close detail on escape
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        s.selected = null;
+        d();
+      }
+    });
+  }
+
+  // Run initialisation after DOM is ready
+  if (document.readyState === "complete") v();
+  else document.addEventListener("DOMContentLoaded", v);
+
+  // Expose for debugging
+  window.radarState = s;
+})();
